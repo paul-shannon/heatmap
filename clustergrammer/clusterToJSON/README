@@ -1,0 +1,2 @@
+using python > 3.5
+pip install --upgrade clustergrammer
