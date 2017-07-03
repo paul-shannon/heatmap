@@ -9,7 +9,7 @@ require.config({
              }}
     });
 
-require(['underscore', 'jquery', 'clustergrammer'], function (_, $, clustergrammer) {
+require(['underscore', 'jquery',  'clustergrammer'], function (_, $, clustergrammer) {
     window.cwg = clustergrammer;
     network_data =
         {"views":
