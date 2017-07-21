@@ -147,9 +147,10 @@ final <- function() {
    treeMtx <<- cutree(hc1, k=1:3)
    treeMtx2 <<- cutree(hc2, k=1:3)
 
-   obj <- fromJSON("teny.js")
+   obj <<- fromJSON("teny.js")
    obj$row_nodes[,2] <- hc1$order
    print(obj$row_nodes)
+   
    }#final
 
 #--------------------------------------------------------------------------------
