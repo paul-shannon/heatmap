@@ -17,29 +17,41 @@ dataFrame <<- function() {
    rowname <<- hc1$labels
    rowclust <<- hc1$order
    rowrank <<- hc1$order
-   rowgroup <<- I(list(treeMtx[1,], treeMtx[2,], treeMtx[3,])) #turn into for-loop that fills in a list, use test.R
+   rowgroup <<- list()
+   rowFill <<- function() {
+            for(i in 1:nrow(treeMtx)) {
+               rowgroup[[i]] <<- treeMtx[i,]
+               }
+            return(I(rowgroup))
+            }
 
    row_nodes <<- data.frame(name=rowname,
                             clust=rowclust,
 			    rank=rowrank,
-			    group=rowgroup,
+			    group=rowFill(), #function that fills list called rowgroup with rows from treeMtx
 			    stringsAsFactors=FALSE)
 
    colname <<- hc2$labels
    colclust <<- hc2$order
    colrank <<- hc2$order
-   colgroup <<- I(list(treeMtx2[1,], treeMtx2[2,], treeMtx2[3,], treeMtx2[4,])) #same as above
+   colgroup <<- list()
+   colFill <<- function() {
+                  for(i in 1:nrow(treeMtx2)) {
+                     colgroup[[i]] <<- treeMtx2[i,]
+                     }
+                  return(I(colgroup))
+                  }
 
    col_nodes <<- data.frame(name=colname,
                             clust=colclust,
 			    rank=colrank,
-			    group=colgroup,
+			    group=colFill(), #function that fills list called colgroup with rows from treeMtx2
 			    stringsAsFactors=FALSE)
 
    mat <<- unname(mtx, force=FALSE)
 
    dataFrameRaw <<- list(row_nodes=row_nodes, col_nodes=col_nodes, mat=mat)
-   dataFramejson <<- toJSON(dataFrameRaw      )
+   dataFramejson <<- toJSON(dataFrameRaw)
 
    return(dataFrameRaw) #to check if the RUnit test find true that matrix is returned
    
