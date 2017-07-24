@@ -52,6 +52,9 @@ dataFrame <<- function() {
 
    dataFrameRaw <<- list(row_nodes=row_nodes, col_nodes=col_nodes, mat=mat)
    dataFramejson <<- toJSON(dataFrameRaw)
+
+   return(dataFrameRaw)
+   #return(dataFramejson) 
    
    }#dataFrame
 #--------------------------------------------------------------------------------
