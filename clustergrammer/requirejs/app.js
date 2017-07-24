@@ -12,7 +12,7 @@ require.config({
 require(['underscore', 'jquery',  'clustergrammer'], function (_, $, clustergrammer) {
 
     window.cwg = clustergrammer;
-    make_clust(demo3x3);
+    make_clust(demoUSArrests); // options: demo3x3, demoUSArrestsSmall (is 3x4), demoUSArrests (full data set) CHANGE THIS TO CHANGE CLUSTERGRAMMER
 
     var about_string = 'Zoom, scroll, and click buttons to interact with the clustergram. <a href="http://amp.pharm.mssm.edu/clustergrammer/help"> <i class="fa fa-question-circle" aria-hidden="true"></i> </a>';
     function make_clust(network_data){
