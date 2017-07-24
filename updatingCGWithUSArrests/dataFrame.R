@@ -12,18 +12,18 @@ dataFrame <<- function() {
    hc2 <<- hclust(dist(t(mtx)))
 
    treeMtx <<- cutree(hc1, k=1:3)
-   treeMtx2 <<- cutree(hc2, k=1:3)
+   treeMtx2 <<- cutree(hc2, k=1:4)
 
    rowname <<- hc1$labels
    rowclust <<- hc1$order
    rowrank <<- hc1$order
    rowgroup <<- list()
    rowFill <<- function() {
-            for(i in 1:nrow(treeMtx)) {
-               rowgroup[[i]] <<- treeMtx[i,]
-               }
-            return(I(rowgroup))
-            }
+                  for(i in 1:nrow(treeMtx)) {
+                     rowgroup[[i]] <<- treeMtx[i,]
+                     }
+                  return(I(rowgroup))
+                  }
 
    row_nodes <<- data.frame(name=rowname,
                             clust=rowclust,
