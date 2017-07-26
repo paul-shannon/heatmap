@@ -39,9 +39,9 @@ dataFrame <<- function() {
    mat <<- unname(mtx, force=FALSE)
 
    dataFrameRaw <<- list(row_nodes=row_nodes, col_nodes=col_nodes, mat=mat)
-   dataFramejson <<- toJSON(dataFrameRaw      )
+   dataFramejson <<- toJSON(dataFrameRaw)
 
    return(dataFrameRaw) #to check if the RUnit test find true that matrix is returned
-   
+
    }#dataFrame
 #--------------------------------------------------------------------------------
