@@ -20,7 +20,7 @@ USArrestsSmall <- function() {
    rowname <- hc1$labels[hc1$order]
    rowclust <- 1:nrow(treeMtx)
    #rowrank <- hc1$order
-   rev_hc1 <- rev(hc1$order) 
+   rev_hc1 <- rev(hc1$order)
    rowgroup <- list()
    rowFill <- function() {
                   for(i in 1:nrow(treeMtx)) {
@@ -38,7 +38,7 @@ USArrestsSmall <- function() {
    colname <- hc2$labels[hc2$order]
    colclust <- 1:nrow(treeMtx2)
    #colrank <- hc2$order
-   rev_hc2 <- rev(hc2$order) 
+   rev_hc2 <- rev(hc2$order)
    colgroup <- list()
    colFill <- function() {
                   for(i in 1:nrow(treeMtx2)) {
@@ -65,8 +65,8 @@ USArrestsSmall <- function() {
    print(toJSON(rawListSmall))
 
    return(rawListSmall)
-   #return(dataFramejson) 
-   
+   #return(dataFramejson)
+
    }#USArrestsSmall
 #--------------------------------------------------------------------------------
 matrixToClusterGrammer <- function(mtx) {
@@ -119,41 +119,41 @@ matrixToClusterGrammer <- function(mtx) {
    mat <- mat[hc1$order, hc2$order]
 
    #browser()
-    
+
    rawList <- list(row_nodes=row_nodes, col_nodes=col_nodes, mat=mat)
    listToJson <- toJSON(rawList)
 
-   return(rawList) 
-    
+   return(rawList)
+
    }#matrixToClusterGrammer
 #--------------------------------------------------------------------------------
 test_matrixToClusterGrammer <- function() {
 
     mtx <- as.matrix(USArrests)
-    
+
     x <- matrixToClusterGrammer(mtx)
 
     print(x)
     print(toJSON(x))
     #print(mtx)
- 
+
     #TESTS
     checkTrue(is.list(x))
-    
+
     checkTrue(is.data.frame(col_nodes))
     checkTrue(is.data.frame(col_nodes))
     checkTrue(is.list(col_nodes[1,4]))
     checkTrue(is.character(col_nodes[1,1]))
-    
+
     checkTrue(is.matrix(mat))
     checkEquals(dim(rawList$mat), c(3, 4))
     checkEquals(mat[1,1], 12.2)
     checkEquals(mat[3,4], 26.1)
-    
+
     }#test_matrixToClusterGrammer
 #--------------------------------------------------------------------------------
 test_USArrestsSmall <- function() {
-    
+
     set.seed(37)
     rows.of.interest <- sample(1:nrow(USArrests), size=3)
     mtx <- as.matrix(USArrests[rows.of.interest,])
@@ -163,24 +163,29 @@ test_USArrestsSmall <- function() {
     #print(x)
     print(toJSON(x))
     print(mtx)
- 
+
     #TESTS
     checkTrue(is.list(x))
-    
+
     checkTrue(is.data.frame(col_nodes))
     checkTrue(is.data.frame(col_nodes))
     checkTrue(is.list(col_nodes[1,4]))
     checkTrue(is.character(col_nodes[1,1]))
-    
+
     checkTrue(is.matrix(mat))
     checkEquals(dim(rawList$mat), c(3, 4))
     checkEquals(mat[1,1], 12.2)
     checkEquals(mat[3,4], 26.1)
-    
+
     }#test_USArrestsSmall
 #--------------------------------------------------------------------------------
+<<<<<<< HEAD:updatingCGWithUSArrests/matrixCluster.R
 test_bioMatrix <- function() {
     printf("â€” test_bioMatrix")
+=======
+test_BioMatrix <- function() {
+    printf("\ test_clusteringToJSON_mediumSizedMatrix")
+>>>>>>> 47982acad4ed695d9c34a3d268217166204c8571:updatingCGWithUSArrests/dataFrame.R
     print(load("clustergrammer/matrixToClusteredJSON/mtx.248.8.RData"))
 
     mtx <- mtx.248.8
@@ -190,8 +195,13 @@ test_bioMatrix <- function() {
     printf("Success")
 
     #print(x)
+<<<<<<< HEAD:updatingCGWithUSArrests/matrixCluster.R
     #print(toJSON(x))
     
+=======
+    print(toJSON(x))
+
+>>>>>>> 47982acad4ed695d9c34a3d268217166204c8571:updatingCGWithUSArrests/dataFrame.R
     }#test_BioMatrix
 #--------------------------------------------------------------------------------
 test_microGlial <- function() {
