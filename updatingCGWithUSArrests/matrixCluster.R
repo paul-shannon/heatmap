@@ -10,7 +10,7 @@ USArrestsSmall <- function() {
    set.seed(37)
    rows.of.interest <- sample(1:nrow(USArrests), size=3)
    mtx <- as.matrix(USArrests[rows.of.interest,])
-   heatmap.2(mtx, trace="none", col=rev(heat.colors(10)), margins=c(20, 20))
+   #heatmap.2(mtx, trace="none", col=rev(heat.colors(10)), margins=c(20, 20))
    hc1 <<- hclust(dist(mtx))
    hc2 <<- hclust(dist(t(mtx)))
 
@@ -53,11 +53,16 @@ USArrestsSmall <- function() {
 			    group=colFill(), #function that fills list called colgroup with rows from treeMtx2
 			    stringsAsFactors=FALSE)
 
-   mat <- unname(mtx, force=FALSE)
-   mat <- mat[hc1$order, hc2$order]
+   mat <- unname(data.frame(mtx[hc1$order, hc2$order]), force=FALSE)
+   #newCol <- c(1:nrow(mtx))
+   mat$newCol <- c(1:nrow(mtx))
+   mat <- unname(mat) 
+    
+   #mat <- data.frame(mat[hc1$order, hc2$order])
+   printf(class(mat)) 
 
    rawListSmall <- list(row_nodes=row_nodes, col_nodes=col_nodes, mat=mat)
-   dataFramejson <<- toJSON(rawListSmall)
+   print(toJSON(rawListSmall))
 
    return(rawListSmall)
    #return(dataFramejson) 
@@ -66,11 +71,13 @@ USArrestsSmall <- function() {
 #--------------------------------------------------------------------------------
 matrixToClusterGrammer <- function(mtx) {
 
+  #heatmap.2(mtx, trace="none", col=rev(heat.colors(10)), margins=c(300, 100))
+
    hc1 <- hclust(dist(mtx))
    hc2 <- hclust(dist(t(mtx)))
 
-   treeMtx <- cutree(hc1, k=1:11)
-   treeMtx2 <- cutree(hc2, k=1:ncol(mtx))
+   treeMtx <- cutree(hc1, k=1:11) #change based on size of matrix
+   treeMtx2 <- cutree(hc2, k=1:11) # " "
 
    rowname <- hc1$labels[hc1$order]
    rowclust <- 1:nrow(treeMtx)
@@ -172,16 +179,34 @@ test_USArrestsSmall <- function() {
     
     }#test_USArrestsSmall
 #--------------------------------------------------------------------------------
-test_BioMatrix <- function() {
-    printf("— test_clusteringToJSON_mediumSizedMatrix")
+test_bioMatrix <- function() {
+    printf("— test_bioMatrix")
     print(load("clustergrammer/matrixToClusteredJSON/mtx.248.8.RData"))
 
     mtx <- mtx.248.8
 
     x <- matrixToClusterGrammer(mtx)
 
+    printf("Success")
+
     #print(x)
-    print(toJSON(x))
+    #print(toJSON(x))
     
     }#test_BioMatrix
+#--------------------------------------------------------------------------------
+test_microGlial <- function() {
+    
+    printf("--- test_microGlial")
+    print(load("clustergrammer/matrixToClusteredJSON/mtx.microglial.RData"))
+
+    mtx <- mtx.microglial
+    print(dim(mtx))
+
+    x <- matrixToClusterGrammer(mtx)
+
+    text <- sprintf("cgStructure = %s", toJSON(x))
+
+    writeLines(text, "clustergrammer/requirejs/microglial.js")
+    
+    }#test_microGlial
 #--------------------------------------------------------------------------------
