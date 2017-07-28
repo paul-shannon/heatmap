@@ -90,7 +90,7 @@ matrixToClusterGrammer <- function(mtx) {
                   return(I(rowgroup))
                   }
 
-   row_nodes <<- data.frame(name=rowname,
+   row_nodes <- data.frame(name=rowname,
                             clust=rowclust,
 			    #rank=rowrank,
 			    group=rowFill(), #function that fills list called rowgroup with rows from treeMtx
