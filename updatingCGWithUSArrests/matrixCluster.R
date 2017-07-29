@@ -69,7 +69,7 @@ USArrestsSmall <- function() {
 
    }#USArrestsSmall
 #--------------------------------------------------------------------------------
-matrixToClusterGrammer <- function(mtx) {
+matrixToClustergrammer <- function(mtx, colGroups=diagnosis.groups) {
 
   #heatmap.2(mtx, trace="none", col=rev(heat.colors(10)), margins=c(300, 100))
 
@@ -77,7 +77,7 @@ matrixToClusterGrammer <- function(mtx) {
    hc2 <- hclust(dist(t(mtx)))
 
    treeMtx <- cutree(hc1, k=1:11) #change based on size of matrix
-   treeMtx2 <- cutree(hc2, k=1:11) # " "
+   treeMtx2 <- cutree(hc2, k=1:8) # " "      
 
    rowname <- hc1$labels[hc1$order]
    rowclust <- 1:nrow(treeMtx)
@@ -113,8 +113,22 @@ matrixToClusterGrammer <- function(mtx) {
                             clust=colclust,
 			    #rank=colrank,
 			    group=colFill(), #function that fills list called colgroup with rows from treeMtx2
-			    stringsAsFactors=FALSE)
+                            stringsAsFactors=FALSE)
 
+   colGroups <- diagnosis.groups
+   
+   #forloop for colGroups here
+   if(nrow(rowGroups) > 0) {
+      printf("success")# add the cat-0, cat-1, … for each kind of metadata (group data) for each gene
+      
+             
+      }
+   if(nrow(colGroups) > 0) {
+      # add the cat-0, cat-1, … for each kind of metadata (group data) for each sample
+      printf("double Success")
+      }
+
+    
    mat <- unname(mtx, force=FALSE)
    mat <- mat[hc1$order, hc2$order]
 
@@ -125,7 +139,7 @@ matrixToClusterGrammer <- function(mtx) {
 
    return(rawList)
 
-   }#matrixToClusterGrammer
+   }#matrixToClustergrammer
 #--------------------------------------------------------------------------------
 test_matrixToClusterGrammer <- function() {
 
@@ -179,29 +193,18 @@ test_USArrestsSmall <- function() {
 
     }#test_USArrestsSmall
 #--------------------------------------------------------------------------------
-<<<<<<< HEAD:updatingCGWithUSArrests/matrixCluster.R
 test_bioMatrix <- function() {
+    
     printf("— test_bioMatrix")
-=======
-test_BioMatrix <- function() {
-    printf("�\ test_clusteringToJSON_mediumSizedMatrix")
->>>>>>> 47982acad4ed695d9c34a3d268217166204c8571:updatingCGWithUSArrests/dataFrame.R
     print(load("clustergrammer/matrixToClusteredJSON/mtx.248.8.RData"))
 
     mtx <- mtx.248.8
-
     x <- matrixToClusterGrammer(mtx)
-
     printf("Success")
 
     #print(x)
-<<<<<<< HEAD:updatingCGWithUSArrests/matrixCluster.R
     #print(toJSON(x))
-    
-=======
-    print(toJSON(x))
 
->>>>>>> 47982acad4ed695d9c34a3d268217166204c8571:updatingCGWithUSArrests/dataFrame.R
     }#test_BioMatrix
 #--------------------------------------------------------------------------------
 test_microGlial <- function() {
@@ -212,7 +215,13 @@ test_microGlial <- function() {
     mtx <- mtx.microglial
     print(dim(mtx))
 
-    x <- matrixToClusterGrammer(mtx)
+    tbl.meta <- read.table("MayoRNAseq_RNAseq_TCX_covariates.csv", sep=",", as.is=TRUE, header=TRUE) #Meta-Data
+    diagnosis.groups <- tbl.meta$Diagnosis
+    names(diagnosis.groups) <- tbl.meta$ID
+    print(head(diagnosis.groups))
+    
+    x <- matrixToClusterGrammer(mtx, colGroups=diagnosis.groups)
+    print(nchar(toJSON(x)))
 
     text <- sprintf("cgStructure = %s", toJSON(x))
 
