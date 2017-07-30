@@ -56,10 +56,10 @@ USArrestsSmall <- function() {
    mat <- unname(data.frame(mtx[hc1$order, hc2$order]), force=FALSE)
    #newCol <- c(1:nrow(mtx))
    mat$newCol <- c(1:nrow(mtx))
-   mat <- unname(mat) 
-    
+   mat <- unname(mat)
+
    #mat <- data.frame(mat[hc1$order, hc2$order])
-   printf(class(mat)) 
+   printf(class(mat))
 
    rawListSmall <- list(row_nodes=row_nodes, col_nodes=col_nodes, mat=mat)
    print(toJSON(rawListSmall))
@@ -77,7 +77,7 @@ matrixToClustergrammer <- function(mtx, colGroups=diagnosis.groups) {
    hc2 <- hclust(dist(t(mtx)))
 
    treeMtx <- cutree(hc1, k=1:11) #change based on size of matrix
-   treeMtx2 <- cutree(hc2, k=1:8) # " "      
+   treeMtx2 <- cutree(hc2, k=1:8) # " "
 
    rowname <- hc1$labels[hc1$order]
    rowclust <- 1:nrow(treeMtx)
@@ -116,19 +116,19 @@ matrixToClustergrammer <- function(mtx, colGroups=diagnosis.groups) {
                             stringsAsFactors=FALSE)
 
    colGroups <- diagnosis.groups
-   
+
    #forloop for colGroups here
    if(nrow(rowGroups) > 0) {
       printf("success")# add the cat-0, cat-1, … for each kind of metadata (group data) for each gene
-      
-             
+
+
       }
    if(nrow(colGroups) > 0) {
       # add the cat-0, cat-1, … for each kind of metadata (group data) for each sample
       printf("double Success")
       }
 
-    
+
    mat <- unname(mtx, force=FALSE)
    mat <- mat[hc1$order, hc2$order]
 
@@ -194,7 +194,7 @@ test_USArrestsSmall <- function() {
     }#test_USArrestsSmall
 #--------------------------------------------------------------------------------
 test_bioMatrix <- function() {
-    
+
     printf("— test_bioMatrix")
     print(load("clustergrammer/matrixToClusteredJSON/mtx.248.8.RData"))
 
@@ -208,7 +208,7 @@ test_bioMatrix <- function() {
     }#test_BioMatrix
 #--------------------------------------------------------------------------------
 test_microGlial <- function() {
-    
+
     printf("--- test_microGlial")
     print(load("clustergrammer/matrixToClusteredJSON/mtx.microglial.RData"))
 
@@ -219,13 +219,13 @@ test_microGlial <- function() {
     diagnosis.groups <- tbl.meta$Diagnosis
     names(diagnosis.groups) <- tbl.meta$ID
     print(head(diagnosis.groups))
-    
-    x <- matrixToClusterGrammer(mtx, colGroups=diagnosis.groups)
+
+    x <- matrixToClustergrammer(mtx, diagnosis.groups)
     print(nchar(toJSON(x)))
 
     text <- sprintf("cgStructure = %s", toJSON(x))
 
     writeLines(text, "clustergrammer/requirejs/microglial.js")
-    
+
     }#test_microGlial
 #--------------------------------------------------------------------------------
