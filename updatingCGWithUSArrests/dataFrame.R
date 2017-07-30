@@ -32,7 +32,7 @@ USArrestsSmall <- function() {
    row_nodes <- data.frame(name=rowname,
                             clust=rowclust,
 			    #rank=rowrank,
-			    group=rowFill(), #function that fills list called rowgroup with rows from treeMtx
+			    group=rowFill(), #function that fills list called rowgroXup with rows from treeMtx
 			    stringsAsFactors=FALSE)
 
    colname <- hc2$labels[hc2$order]
