@@ -69,7 +69,7 @@ USArrestsSmall <- function() {
 
    }#USArrestsSmall
 #--------------------------------------------------------------------------------
-matrixToClustergrammer <- function(mtx, colGroups=diagnosis.groups) {
+matrixToClustergrammer <- function(mtx, diagnosis.groups=NULL) {
 
   #heatmap.2(mtx, trace="none", col=rev(heat.colors(10)), margins=c(300, 100))
 
@@ -109,30 +109,32 @@ matrixToClustergrammer <- function(mtx, colGroups=diagnosis.groups) {
                   return(I(colgroup))
                   }
 
-   col_nodes <- data.frame(name=colname,
-                            clust=colclust,
-			    #rank=colrank,
-			    group=colFill(), #function that fills list called colgroup with rows from treeMtx2
-                            stringsAsFactors=FALSE)
+   catCol <- list()
+   catColFill <- function() {
+           for(i in 1:nrow(treeMtx2)) {
+               catCol[[i]] <- diagnosis.groups[hc2$labels[hc2$order[i]]]
+               }
+           return(I(catCol))
+           }
 
-   colGroups <- diagnosis.groups
+   col_nodes <- data.frame(name=colname,
+                           clust=colclust,
+			   #rank=colrank,
+                           group=colFill(), #function that fills list called colgroup with rows from treeMtx2
+                           #cat=catColFill() #doesn't work yet
+                           stringsAsFactors=FALSE)
+
+
 
    #forloop for colGroups here
-   if(nrow(rowGroups) > 0) {
-      printf("success")# add the cat-0, cat-1, … for each kind of metadata (group data) for each gene
-
-
-      }
-   if(nrow(colGroups) > 0) {
-      # add the cat-0, cat-1, … for each kind of metadata (group data) for each sample
-      printf("double Success")
-      }
-
+   if(!is.null(diagnosis.groups)) {
+       printf("Success")# add the cat-0, cat-1, … for each kind of metadata (group data) for each gene
+       w <- catColFill()
+       print(toJSON(w[1:10]))
+       }
 
    mat <- unname(mtx, force=FALSE)
    mat <- mat[hc1$order, hc2$order]
-
-   #browser()
 
    rawList <- list(row_nodes=row_nodes, col_nodes=col_nodes, mat=mat)
    listToJson <- toJSON(rawList)
