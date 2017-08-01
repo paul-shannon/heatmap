@@ -69,15 +69,15 @@ USArrestsSmall <- function() {
 
    }#USArrestsSmall
 #--------------------------------------------------------------------------------
-matrixToClustergrammer <- function(mtx, diagnosis.groups=NULL) {
+matrixToClustergrammer <- function(mtx, diagnosis.groups=NULL, age.groups=NULL, gender.groups=NULL) {
 
   #heatmap.2(mtx, trace="none", col=rev(heat.colors(10)), margins=c(300, 100))
 
    hc1 <- hclust(dist(mtx))
    hc2 <- hclust(dist(t(mtx)))
 
-   treeMtx <- cutree(hc1, k=1:11) #change based on size of matrix
-   treeMtx2 <- cutree(hc2, k=1:8) # " "
+   treeMtx <- cutree(hc1, k=1:40) #change based on size of matrix, max k-value = 11
+   treeMtx2 <- cutree(hc2, k=1:40) # " "
 
    rowname <- hc1$labels[hc1$order]
    rowclust <- 1:nrow(treeMtx)
@@ -88,7 +88,7 @@ matrixToClustergrammer <- function(mtx, diagnosis.groups=NULL) {
                      rowgroup[[i]] <- rev(treeMtx[hc1$order[i],])
                      }
                   return(I(rowgroup))
-                  }
+                  }#row names
 
    row_nodes <- data.frame(name=rowname,
                             clust=rowclust,
@@ -107,31 +107,61 @@ matrixToClustergrammer <- function(mtx, diagnosis.groups=NULL) {
                      colgroup[[i]] <- rev(treeMtx2[hc2$order[i],])
                      }
                   return(I(colgroup))
-                  }
+                  }#column names
 
-   catCol <- list()
-   catColFill <- function() {
+   catColFill1 <- function() {
            for(i in 1:nrow(treeMtx2)) {
-               catCol[[i]] <- diagnosis.groups[hc2$labels[hc2$order[i]]]
+               catCol1[[i]] <- diagnosis.groups[hc2$labels[hc2$order[i]]]
                }
-           return(I(catCol))
-           }
+           return(I(catCol1))
+   }#column categories
+
+    catColFill2 <- function() {
+           for(i in 1:nrow(treeMtx2)) {
+               catCol2[[i]] <- age.groups[hc2$labels[hc2$order[i]]]
+               }
+           return(I(catCol2))
+    }#column categories
+
+    catColFill3 <- function() {
+           for(i in 1:nrow(treeMtx2)) {
+               catCol3[[i]] <- gender.groups[hc2$labels[hc2$order[i]]]
+               }
+           return(I(catCol3))
+    }#column categories
+    
+ 
+   #forloop for colGroups here
+    if(!is.null(gender.groups)) {
+       catCol3 <- list()
+       catCol3 <- catColFill3()
+    }
+
+    if(!is.null(diagnosis.groups)) {
+       catCol1 <- list()
+       catCol1 <- catColFill1()
+       }
+    if(!is.null(age.groups)) {
+        catCol2 <- list()
+        catCol2 <- catColFill2()
+        }
 
    col_nodes <- data.frame(name=colname,
                            clust=colclust,
 			   #rank=colrank,
                            group=colFill(), #function that fills list called colgroup with rows from treeMtx2
-                           #cat=catColFill() #doesn't work yet
-                           stringsAsFactors=FALSE)
+                           "cat-0"= paste(sep=' ',
+                                          'Gender:',
+                                          catCol3),
+                           "cat-1"= paste(sep=' ',
+                                          'Diagnosis:',
+                                          catCol1),
+                           "cat-2"= paste(sep=' ',
+                                          'Age:',
+                                          catCol2),
+                           stringsAsFactors=FALSE,
+                           check.names=FALSE)
 
-
-
-   #forloop for colGroups here
-   if(!is.null(diagnosis.groups)) {
-       printf("Success")# add the cat-0, cat-1, … for each kind of metadata (group data) for each gene
-       w <- catColFill()
-       print(toJSON(w[1:10]))
-       }
 
    mat <- unname(mtx, force=FALSE)
    mat <- mat[hc1$order, hc2$order]
@@ -220,11 +250,16 @@ test_microGlial <- function() {
     tbl.meta <- read.table("MayoRNAseq_RNAseq_TCX_covariates.csv", sep=",", as.is=TRUE, header=TRUE) #Meta-Data
     diagnosis.groups <- tbl.meta$Diagnosis
     names(diagnosis.groups) <- tbl.meta$ID
-    print(head(diagnosis.groups))
 
-    x <- matrixToClustergrammer(mtx, diagnosis.groups)
+    age.groups <- tbl.meta$AgeAtDeath
+    names(age.groups) <- tbl.meta$ID
+
+    gender.groups <- tbl.meta$Gender
+    names(gender.groups) <- tbl.meta$ID
+
+    x <- matrixToClustergrammer(mtx, diagnosis.groups, age.groups, gender.groups)
     print(nchar(toJSON(x)))
-
+    
     text <- sprintf("cgStructure = %s", toJSON(x))
 
     writeLines(text, "clustergrammer/requirejs/microglial.js")

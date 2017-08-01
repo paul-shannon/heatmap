@@ -12,7 +12,7 @@ require.config({
 require(['underscore', 'jquery',  'clustergrammer'], function (_, $, clustergrammer) {
 
     window.cwg = clustergrammer;
-    make_clust(old_demoUSArrestsSmall); // options: demo3x3, demoUSArrestsSmall (is 3x4), demoUSArrests (full data set), demoBioMatrix, demoBioMatrix2, demoMicroGlial, cgStructure CHANGE THIS TO CHANGE CLUSTERGRAMMER
+    make_clust(cgStructure); // options: demo3x3, demoUSArrestsSmall (is 3x4), demoUSArrests (full data set), demoBioMatrix, demoBioMatrix2, demoMicroGlial, cgStructure CHANGE THIS TO CHANGE CLUSTERGRAMMER
 
     var about_string = 'Zoom, scroll, and click buttons to interact with the clustergram. <a href="http://amp.pharm.mssm.edu/clustergrammer/help"> <i class="fa fa-question-circle" aria-hidden="true"></i> </a>';
     function make_clust(network_data){
