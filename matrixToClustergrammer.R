@@ -30,7 +30,7 @@ matrixToClustergrammerList <- function(mtx, tbl.rowmd=NULL, tbl.colmd=NULL) {
     row_nodes <- data.frame(name=rowname,
                             clust=rowclust,
   		 	    #rank=rowrank,
- 			    group=rowFill(treeMtx), #function that fills list called rowgroup with rows from treeMtx
+ 			    group=rowFill(treeMtx, hc1), #function that fills list called rowgroup with rows from treeMtx
                             stringsAsFactors=FALSE,
                             check.names=FALSE)
 
@@ -41,7 +41,7 @@ matrixToClustergrammerList <- function(mtx, tbl.rowmd=NULL, tbl.colmd=NULL) {
     col_nodes <- data.frame(name=colname,
                             clust=colclust,
  			    #rank=colrank,
-                            group=colFill(treeMtx2), #function that fills list called colgroup with rows from treeMtx2
+                            group=colFill(treeMtx2, hc2), #function that fills list called colgroup with rows from treeMtx2
                             stringsAsFactors=FALSE,
                             check.names=FALSE)        
     
@@ -51,17 +51,17 @@ matrixToClustergrammerList <- function(mtx, tbl.rowmd=NULL, tbl.colmd=NULL) {
     list.cg <- list(row_nodes=row_nodes, col_nodes=col_nodes, mat=mat)
 
     if(!is.null(tbl.rowmd)) {
-        list.cg <- addRowMetaData(list.cg, tbl.rowmd)
+        list.cg <- addRowMetaData(list.cg, tbl.rowmd, hc1)
         }
     if(!is.null(tbl.colmd)) {
-        list.cg <- addColumnMetaData(list.cg, tbl.colmd)
+        list.cg <- addColumnMetaData(list.cg, tbl.colmd, hc2)
         }
-
+#browser()
     list.cg
     
     }#matrixToClustergrammer
 #--------------------------------------------------------------------------------
-rowFill <- function(treeMtx) {
+rowFill <- function(treeMtx, hc1) {
     
               rowgroup <- list()
               for(i in 1:nrow(treeMtx)) {
@@ -71,7 +71,7 @@ rowFill <- function(treeMtx) {
               
               }#row names
 #--------------------------------------------------------------------------------
-colFill <- function(treeMtx2) {
+colFill <- function(treeMtx2, hc2) {
     
               colgroup <- list()
               for(i in 1:nrow(treeMtx2)) {
@@ -81,21 +81,25 @@ colFill <- function(treeMtx2) {
 
               }#column names
 #--------------------------------------------------------------------------------
-addColumnMetaData <- function(list.cg, tbl.colmd) {
-browser()
-    list.cg$col_nodes$"cat-0" <- tbl.colmd[,1]
-    list.cg$col_nodes$"cat-0"[1] <- paste(sep='', colnames(tbl.colmd), ':', tbl.colmd[1,1])
+addColumnMetaData <- function(list.cg, tbl.colmd, hc2) {
     
+    list.cg$col_nodes$"cat-0" <- tbl.colmd[,1]
+    list.cg$col_nodes$"cat-0" <- list.cg$col_nodes$"cat-0"[hc2$order]
+    list.cg$col_nodes$"cat-0" <- paste(sep='', colnames(tbl.colmd[1]), ': ', list.cg$col_nodes$"cat-0")
+    list.cg$col_nodes$"cat-1" <- tbl.colmd[,2]
+    list.cg$col_nodes$"cat-1" <- list.cg$col_nodes$"cat-1"[hc2$order]
+    list.cg$col_nodes$"cat-1" <- paste(sep='', colnames(tbl.colmd[2]), ': ', list.cg$col_nodes$"cat-1")
+
     return(list.cg)
     
     }#addColumnMetaData
 #--------------------------------------------------------------------------------
-addRowMetaData <- function(list.cg, tbl.rowmd) {
+addRowMetaData <- function(list.cg, tbl.rowmd, hc1) {
 
     list.cg$row_nodes$"cat-0" <- tbl.rowmd[,1]
-    list.cg$row_nodes$"cat-0"[1] <- paste(sep='', colnames(tbl.rowmd), ':', tbl.rowmd[1,1])
+    list.cg$row_nodes$"cat-0" <- list.cg$row_nodes$"cat-0"[hc1$order]
+    list.cg$row_nodes$"cat-0" <- paste(sep='', colnames(tbl.rowmd), ': ', list.cg$row_nodes$"cat-0")
 
-    #browser()
     return(list.cg)
     
     }#addRowMetaData
@@ -107,7 +111,7 @@ simpleMatrix <- function() {
                             stringsAsFactors=FALSE)
     tbl.colmd <- data.frame(row.names=c("C1","C2","C3"),
                             Placement=c("One", "Two", "Three"),
-                            #Color=c("Blue", "Yellow", "Red"),
+                            Color=c("Blue", "Yellow", "Red"),
                             stringsAsFactors=FALSE)
     
     list.cg <- matrixToClustergrammerList(mtx, tbl.rowmd, tbl.colmd)
@@ -122,11 +126,11 @@ USArrestsExample <- function() {
     mtx <- as.matrix(USArrests[rows.of.interest,])
     
     tbl.rowmd <- data.frame(row.names=c("Nevada", "Arkansas", "New York"),
-                            "N-States"=c("True", "False", "True"),
+                            "Region"=c("South West", "South", "North East"),
                             stringsAsFactors=FALSE)
     tbl.colmd <- data.frame(row.names=c("Murder", "Assault", "UrbanPop", "Rape"),
-                            Crime=c("True", "True", "False", "True"),
-                            #Severity=c("Terrible", "Pretty Bad", "N/A", "Terrible"),
+                            Severity=c("Terrible", "Pretty Bad", "N/A", "Terrible"),
+                            Jail_Time=c("20 Years", "1-5 Years", "N/A", "5-10 Years"),
                             stringsAsFactors=FALSE)
 
     list.cg <- matrixToClustergrammerList(mtx, tbl.rowmd, tbl.colmd)
@@ -140,6 +144,8 @@ test_simpleMatrix <- function(mtx) {
     printf("=== test_simpleMatrix")
     
     list.cg <- matrixToClustergrammerList(mtx)
+    hc1 <- hclust(dist(mtx))
+    hc2 <- hclust(dist(t(mtx)))
 
     checkTrue(is.list(list.cg))
     checkEquals((list.cg$row_nodes$name), rownames(mtx[hc1$order, hc2$order]))
@@ -152,6 +158,9 @@ test_addRowMetaData <- function(mtx) {
     printf("=== test_addRowMetaData")
     
     list.cg <- matrixToClustergrammerList(mtx)
+    hc1 <- hclust(dist(mtx))
+    hc2 <- hclust(dist(t(mtx)))
+
 
     tbl.rowmd <- data.frame(row.names=c("R1","R2","R3"), Placement=c("First", "Second", "Third"), stringsAsFactors=FALSE)
     list.cg <- addRowMetaData(list.cg, tbl.rowmd)
@@ -167,7 +176,9 @@ test_addColumnMetaData <- function(mtx) {
     printf("=== test_addColumnMetaData")
 
     list.cg <- matrixToClustergrammerList(mtx)
-
+    hc1 <- hclust(dist(mtx))
+    hc2 <- hclust(dist(t(mtx)))
+    
     tbl.colmd <- data.frame(row.names=c("C1","C2","C3"), Placement=c("One", "Two", "Three"), stringsAsFactors=FALSE)
     list.cg <- addColumnMetaData(list.cg, tbl.colmd)
 
@@ -184,7 +195,7 @@ test_rowFill <- function(mtx) {
     hc1 <- hclust(dist(mtx))
     treeMtx <- cutree(hc1, k=1:3) #change based on size of matrix, max k-value = 11
 
-    checkTrue(is.list(rowFill(treeMtx)))
+    checkTrue(is.list(rowFill(treeMtx, hc1)))
     
     }#test_rowFill
 #--------------------------------------------------------------------------------
@@ -195,7 +206,7 @@ test_colFill <- function(mtx) {
     hc2 <- hclust(dist(t(mtx)))
     treeMtx2 <- cutree(hc2, k=1:3)
     
-    checkTrue(is.list(colFill(treeMtx2)))
+    checkTrue(is.list(colFill(treeMtx2, hc2)))
 
     }#test_colFill
 #--------------------------------------------------------------------------------
