@@ -4,13 +4,16 @@ library(RUnit)
 #--------------------------------------------------------------------------------
 demo <- function() {
 
-    mtx <- as.matrix(USArrests)
-    tbl.colmd <- data.frame(row.names=c("Murder", "Assault", "UrbanPop", "Rape"),
-                            Severity=c("Terrible", "Pretty Bad", "N/A", "Terrible"),
-                            "Jail Time"=c("20 Years", "1-5 Years", "N/A", "5-10 Years"),
+    mtx <- as.matrix(longley)
+    tbl.rowmd <- data.frame(row.names=row.names(mtx),
+                            Decade=c("Forties", "Forties", "Forties", "Fifties", "Fifties", "Fifties", "Fifties", "Fifties", "Fifties", "Fifties", "Fifties", "Fifties", "Fifties", "Sixties",  "Sixties", "Sixties"),
                             stringsAsFactors=FALSE)
-
-    list.cg <- matrixToListWithMetaData(mtx, tbl.rowmd=NULL, tbl.colmd)
+    tbl.colmd <- data.frame(row.names=colnames(mtx),
+                            "Population Stats"=c("NA", "NA", "Employment", "Employment", "Total Population", "NA", "Employment"),
+                            Metric=c("GNP", "GNP", "Pop", "Pop", "Pop", "NA", "Pop"),
+                            stringsAsFactors=FALSE)
+    
+    list.cg <- matrixToListWithMetaData(mtx, tbl.rowmd, tbl.colmd)
 
     text <- sprintf("matrixDemo = %s", toJSON(list.cg))
     writeLines(text, "clustergrammer/requirejs/matrixDemo.js")
@@ -27,7 +30,7 @@ runTests <- function() {
     test_addColumnMetaData()
     test_smallMatrixToListWithMetaData()
     test_mediumMatrixToListWithMetaData()
-    #test_largeMatrixToListWithMetaData()
+    test_largeMatrixToListWithMetaData()
 
     }#runTests
 #--------------------------------------------------------------------------------
@@ -38,13 +41,13 @@ matrixToListWithMetaData <- function(mtx, tbl.rowmd=NULL, tbl.colmd=NULL) {
     if(!is.null(tbl.rowmd)) {
         for(i in 1:ncol(tbl.rowmd)) {
             list.cg <- addRowMetaData(list.cg, tbl.rowmd, i)
-            }#forloop to call addRowMetaData
+            }#forloop
         }#row meta data
 
     if(!is.null(tbl.colmd)) {
         for(i in 1:ncol(tbl.colmd)) {
             list.cg <- addColumnMetaData(list.cg, tbl.colmd, i)
-            }#forloop to call columnMetaData
+            }#forloop
         }#column meta data
 
     return(list.cg)
@@ -208,6 +211,29 @@ test_mediumMatrixToListWithMetaData <- function() {
     checkEquals(list.cg$col_nodes$"cat-1", c("Jail.Time: 1-5 Years", "Jail.Time: N/A", "Jail.Time: 20 Years", "Jail.Time: 5-10 Years"))
     
     }#test_mediumMatrixToListWithMetaData
+#--------------------------------------------------------------------------------
+test_largeMatrixToListWithMetaData <- function() {
+
+    printf("=== test_largeMatrixToListWithMetaData")
+
+    mtx <- as.matrix(USArrests) #full USArrests dataseto
+    tbl.colmd <- data.frame(row.names=c("Murder", "Assault", "UrbanPop", "Rape"),
+                            Severity=c("Terrible", "Pretty Bad", "N/A", "Terrible"),
+                            "Jail Time"=c("20 Years", "1-5 Years", "N/A", "5-10 Years"),
+                            stringsAsFactors=FALSE)
+
+    list.cg <- matrixToListWithMetaData(mtx, tbl.rowmd=NULL, tbl.colmd)
+
+    checkTrue(is.list(list.cg))
+
+    checkEquals(length(list.cg$row_nodes$name), 50)
+
+    checkEquals(list.cg$col_nodes$name, c("Assault", "UrbanPop", "Murder", "Rape"))
+    checkEquals(list.cg$col_nodes$clust, c(1,2,3,4))
+    checkEquals(list.cg$col_nodes$"cat-0", c("Severity: Pretty Bad", "Severity: N/A", "Severity: Terrible", "Severity: Terrible"))
+    checkEquals(list.cg$col_nodes$"cat-1", c("Jail.Time: 1-5 Years", "Jail.Time: N/A", "Jail.Time: 20 Years", "Jail.Time: 5-10 Years"))
+    
+    }#test_largeMatrixToListWithMetaData
 #--------------------------------------------------------------------------------
 test_matrixToClustergrammerList <- function() {
 
