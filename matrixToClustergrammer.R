@@ -2,24 +2,61 @@ library(gplots)
 library(jsonlite)
 library(RUnit)
 #--------------------------------------------------------------------------------
+demo <- function() {
+
+    mtx <- as.matrix(USArrests)
+    tbl.colmd <- data.frame(row.names=c("Murder", "Assault", "UrbanPop", "Rape"),
+                            Severity=c("Terrible", "Pretty Bad", "N/A", "Terrible"),
+                            "Jail Time"=c("20 Years", "1-5 Years", "N/A", "5-10 Years"),
+                            stringsAsFactors=FALSE)
+
+    list.cg <- matrixToListWithMetaData(mtx, tbl.rowmd=NULL, tbl.colmd)
+
+    text <- sprintf("matrixDemo = %s", toJSON(list.cg))
+    writeLines(text, "clustergrammer/requirejs/matrixDemo.js")
+    browseURL("http://localhost:8090/index.html")
+
+    }#demo
+#--------------------------------------------------------------------------------
 runTests <- function() {
 
-    mtx <- matrix(c(1:9), nrow=3, dimnames=list(c("R1","R2","R3"), c("C1","C2","C3")))
-
-    test_rowFill(mtx)
-    test_colFill(mtx)
-    test_simpleMatrix(mtx)
+    test_rowFill()
+    test_colFill()
+    test_matrixToClustergrammerList()
     test_addRowMetaData()
     test_addColumnMetaData()
+    test_smallMatrixToListWithMetaData()
+    test_mediumMatrixToListWithMetaData()
+    #test_largeMatrixToListWithMetaData()
 
     }#runTests
 #--------------------------------------------------------------------------------
-matrixToClustergrammerList <- function(mtx, tbl.rowmd=NULL, tbl.colmd=NULL) {
+matrixToListWithMetaData <- function(mtx, tbl.rowmd=NULL, tbl.colmd=NULL) {
+
+    list.cg <- matrixToClustergrammerList(mtx)
+    
+    if(!is.null(tbl.rowmd)) {
+        for(i in 1:ncol(tbl.rowmd)) {
+            list.cg <- addRowMetaData(list.cg, tbl.rowmd, i)
+            }#forloop to call addRowMetaData
+        }#row meta data
+
+    if(!is.null(tbl.colmd)) {
+        for(i in 1:ncol(tbl.colmd)) {
+            list.cg <- addColumnMetaData(list.cg, tbl.colmd, i)
+            }#forloop to call columnMetaData
+        }#column meta data
+
+    return(list.cg)
+    
+    }#matrixToListWithMetaData
+#--------------------------------------------------------------------------------
+matrixToClustergrammerList <- function(mtx) {
     
     hc.rows <- hclust(dist(mtx))
     hc.cols <- hclust(dist(t(mtx)))
 
-    treeMtx.rows <- cutree(hc.rows, k=1:3) #change based on size of matrix, max k-value = 11
+    treeMtx.rows <- cutree(hc.rows, k=1:nrow(mtx)) #change based on size of matrix, optimal k-value = 1:11
     treeMtx.cols <- cutree(hc.cols, k=1:ncol(mtx)) # " "
 
     rowname <- hc.rows$labels[hc.rows$order]
@@ -49,20 +86,9 @@ matrixToClustergrammerList <- function(mtx, tbl.rowmd=NULL, tbl.colmd=NULL) {
 
     list.cg <- list(row_nodes=row_nodes, col_nodes=col_nodes, mat=mat)
 
-    if(!is.null(tbl.rowmd)) {
-        for(i in 1:ncol(tbl.rowmd)) {
-            list.cg <- addRowMetaData(list.cg, tbl.rowmd, i)
-            }
-        }
-    if(!is.null(tbl.colmd)) {
-        for(i in 1:ncol(tbl.colmd)) {
-            list.cg <- addColumnMetaData(list.cg, tbl.colmd, i)
-            }
-        }
-
     return(list.cg)
     
-    }#matrixToClustergrammer
+    }#matrixToClustergrammerList
 #--------------------------------------------------------------------------------
 rowFill <- function(treeMtx.rows, hc.rows) {
     
@@ -90,7 +116,10 @@ addColumnMetaData <- function(list.cg, tbl.colmd, c) {
     tbl.colmd <- tbl.colmd[desired.order,,drop=FALSE]
 
     category.name <- sprintf("cat-%d", c-1)    
-    list.cg$col_nodes[category.name] <- paste(sep='', colnames(tbl.colmd)[c], ': ', tbl.colmd[,c])
+    list.cg$col_nodes[category.name] <- paste(sep='',
+                                              colnames(tbl.colmd)[c],
+                                              ': ',
+                                              tbl.colmd[,c])
     
     return(list.cg)
     
@@ -102,34 +131,59 @@ addRowMetaData <- function(list.cg, tbl.rowmd, r) {
     tbl.rowmd <- tbl.rowmd[desired.order,,drop=FALSE]
 
     category.name <- sprintf("cat-%d", r-1)        
-    list.cg$row_nodes[category.name] <- paste(sep='', colnames(tbl.rowmd)[r], ': ', tbl.rowmd[,r])
+    list.cg$row_nodes[category.name] <- paste(sep='',
+                                              colnames(tbl.rowmd)[r],
+                                              ': ',
+                                              tbl.rowmd[,r])
 
     return(list.cg)
     
     }#addRowMetaData
 #--------------------------------------------------------------------------------
-simpleMatrix <- function() {
+
+# ============================== TESTS ==============================
+
+test_smallMatrixToListWithMetaData <- function() {
+
+    printf("=== test_smallMatrixToListWithMetaData")
     
     mtx <- matrix(c(1:9), nrow=3, dimnames=list(c("R1","R2","R3"), c("C1","C2","C3")))
     tbl.rowmd <- data.frame(row.names=c("R1","R2","R3"),
                             Placement=c("First", "Second", "Third"),
+                            Shape=c("Triangle", "Square", "Circle"),
                             stringsAsFactors=FALSE)
     tbl.colmd <- data.frame(row.names=c("C1","C2","C3"),
                             Placement=c("One", "Two", "Three"),
-                            Color=c("Blue", "Yellow", "Red"),
+                            Color=c("Red", "Green", "Blue"),
+                            Test=c("w", "x", "y"),
                             stringsAsFactors=FALSE)
-    
-    list.cg <- matrixToClustergrammerList(mtx, tbl.rowmd, tbl.colmd)
 
-    return(list.cg)
+    list.cg <- matrixToListWithMetaData(mtx, tbl.rowmd, tbl.colmd)
+
+    checkTrue(is.list(list.cg))
     
-    }#simpleMatrix
+    checkEquals(ncol(tbl.rowmd), ncol(list.cg$row_nodes) - 3)
+    checkEquals(list.cg$row_nodes$name, c("R3", "R1", "R2"))
+    checkEquals(list.cg$row_nodes$clust, c(1,2,3))
+    checkEquals(list.cg$row_nodes$"cat-0", c("Placement: Third", "Placement: First", "Placement: Second"))
+    checkEquals(list.cg$row_nodes$"cat-1", c("Shape: Circle", "Shape: Triangle", "Shape: Square"))
+
+    checkEquals((ncol(tbl.colmd)), ncol(list.cg$col_nodes) - 3)
+    checkEquals(list.cg$col_nodes$name, c("C3", "C1", "C2"))
+    checkEquals(list.cg$col_nodes$clust, c(1,2,3))
+    checkEquals(list.cg$col_nodes$"cat-0", c("Placement: Three", "Placement: One", "Placement: Two"))
+    checkEquals(list.cg$col_nodes$"cat-1", c("Color: Blue", "Color: Red", "Color: Green"))
+    checkEquals(list.cg$col_nodes$"cat-2", c("Test: y", "Test: w", "Test: x"))
+    
+    }#test_smallMatrixToListMetaData
 #--------------------------------------------------------------------------------
-USArrestsExample <- function() {
+test_mediumMatrixToListWithMetaData <- function() {
+
+    printf("=== test_mediumMatrixToListWithMetaData")
     
     set.seed(37)
     rows.of.interest <- sample(1:nrow(USArrests), size=3)
-    mtx <- as.matrix(USArrests[rows.of.interest,])
+    mtx <- as.matrix(USArrests[rows.of.interest,]) #small sample from USArrests dataset
     
     tbl.rowmd <- data.frame(row.names=c("Nevada", "Arkansas", "New York"),
                             "Region"=c("South West", "South", "North East"),
@@ -139,16 +193,27 @@ USArrestsExample <- function() {
                             "Jail Time"=c("20 Years", "1-5 Years", "N/A", "5-10 Years"),
                             stringsAsFactors=FALSE)
 
-    list.cg <- matrixToClustergrammerList(mtx, tbl.rowmd, tbl.colmd)
+    list.cg <- matrixToListWithMetaData(mtx, tbl.rowmd, tbl.colmd)
 
-    return(list.cg)
+    checkTrue(is.list(list.cg))
     
-    }#USArrestsExample
+    checkEquals(ncol(tbl.rowmd), ncol(list.cg$row_nodes) - 3) # 3 is number of original columns; name, clust, group
+    checkEquals(list.cg$row_nodes$name, c("Arkansas", "Nevada", "New York"))
+    checkEquals(list.cg$row_nodes$clust, c(1,2,3))
+    checkEquals(list.cg$row_nodes$"cat-0", c("Region: South", "Region: South West", "Region: North East"))
+
+    checkEquals(list.cg$col_nodes$name, c("Assault", "UrbanPop", "Murder", "Rape"))
+    checkEquals(list.cg$col_nodes$clust, c(1,2,3,4))
+    checkEquals(list.cg$col_nodes$"cat-0", c("Severity: Pretty Bad", "Severity: N/A", "Severity: Terrible", "Severity: Terrible"))
+    checkEquals(list.cg$col_nodes$"cat-1", c("Jail.Time: 1-5 Years", "Jail.Time: N/A", "Jail.Time: 20 Years", "Jail.Time: 5-10 Years"))
+    
+    }#test_mediumMatrixToListWithMetaData
 #--------------------------------------------------------------------------------
-test_simpleMatrix <- function(mtx) {
+test_matrixToClustergrammerList <- function() {
 
-    printf("=== test_simpleMatrix")
-    
+    printf("=== test_matrixToClustergrammerList")
+
+    mtx <- matrix(c(1:9), nrow=3, dimnames=list(c("R1","R2","R3"), c("C1","C2","C3")))
     list.cg <- matrixToClustergrammerList(mtx)
     hc.rows <- hclust(dist(mtx))
     hc.cols <- hclust(dist(t(mtx)))
@@ -212,7 +277,8 @@ test_addColumnMetaData <- function() {
 test_rowFill <- function(mtx) {
 
     printf("=== test_rowFill")
-    
+
+    mtx <- matrix(c(1:9), nrow=3, dimnames=list(c("R1","R2","R3"), c("C1","C2","C3")))
     hc.rows <- hclust(dist(mtx))
     treeMtx.rows <- cutree(hc.rows, k=1:3) #change based on size of matrix, max k-value = 11
 
@@ -223,7 +289,8 @@ test_rowFill <- function(mtx) {
 test_colFill <- function(mtx) {
 
     printf("=== test_colFill")
-    
+
+    mtx <- matrix(c(1:9), nrow=3, dimnames=list(c("R1","R2","R3"), c("C1","C2","C3")))
     hc.cols <- hclust(dist(t(mtx)))
     treeMtx.cols <- cutree(hc.cols, k=1:3)
     
