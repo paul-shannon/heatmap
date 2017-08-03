@@ -15,3 +15,4 @@ net.cluster()
 outputFilename = "%s.json" % filename.split(".")[0]
 print("writing json to %s" % outputFilename)
 net.write_json_to_file('viz', outputFilename)
+
