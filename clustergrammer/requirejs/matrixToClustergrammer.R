@@ -2,8 +2,10 @@ library(gplots)
 library(jsonlite)
 library(RUnit)
 #--------------------------------------------------------------------------------
-demo <- function() {
+smallDemo <- function() {
 
+   printf("=== smallDemo")
+    
     mtx <- as.matrix(longley)
     tbl.rowmd <- data.frame(row.names=row.names(mtx),
                             Decade=c("Forties", "Forties", "Forties", "Fifties", "Fifties", "Fifties", "Fifties", "Fifties", "Fifties", "Fifties", "Fifties", "Fifties", "Fifties", "Sixties",  "Sixties", "Sixties"),
@@ -20,6 +22,45 @@ demo <- function() {
     browseURL("http://localhost:8090/index.html")
 
     }#demo
+#--------------------------------------------------------------------------------
+largeDemo <- function() {
+
+    printf("=== largeDemo")
+
+    print(load("mtx.microglial.RData"))
+    mtx <- mtx.microglial
+    
+    tbl.colMeta <- read.table("MayoRNAseq_RNAseq_TCX_covariates.csv", sep=",", as.is=TRUE, header=TRUE)
+
+    Diagnosis <- tbl.colMeta$Diagnosis
+    Age_at_Death <- tbl.colMeta$AgeAtDeath
+    Gender <- tbl.colMeta$Gender
+    
+    colGroups <- data.frame(row.names=tbl.colMeta$ID,
+                         Diagnosis,
+                         Age_at_Death,
+                         Gender,
+                         stringsAsFactors=FALSE)
+
+    print(load("tbl.GO.RData"))
+
+    tbl.rowMeta <- tbl.GO
+    Process <- tbl.rowMeta$process
+
+    rowGroups <- data.frame(row.names=row.names(tbl.rowMeta),
+                            Process,
+                            stringsAsFactors=FALSE)
+    
+    tbl.rowmd <- rowGroups
+    tbl.colmd <- colGroups
+
+    list.cg <- matrixToListWithMetaData(mtx, tbl.rowmd, tbl.colmd)
+    
+    text <- sprintf("matrixDemo = %s", toJSON(list.cg))
+    writeLines(text, "matrixDemo.js")
+    browseURL("http://localhost:8090/index.html")
+    
+    }#largeDemo
 #--------------------------------------------------------------------------------
 runTests <- function() {
 
@@ -59,8 +100,18 @@ matrixToClustergrammerList <- function(mtx) {
     hc.rows <- hclust(dist(mtx))
     hc.cols <- hclust(dist(t(mtx)))
 
-    treeMtx.rows <- cutree(hc.rows, k=1:nrow(mtx)) #change based on size of matrix, optimal k-value = 1:11
-    treeMtx.cols <- cutree(hc.cols, k=1:ncol(mtx)) # " "
+    r <- nrow(mtx)
+    c <- ncol(mtx)
+    
+    if(r > 11) {
+        r = 11
+        } #optimal k-value = 11
+    if(c > 11) {
+        c = 11
+        } #optimal k-value = 11
+    
+    treeMtx.rows <- cutree(hc.rows, k=1:r)
+    treeMtx.cols <- cutree(hc.cols, k=1:c)
 
     rowname <- hc.rows$labels[hc.rows$order]
     rowclust <- 1:nrow(treeMtx.rows)

@@ -10,7 +10,10 @@
     <script src="microglial.js"></script>
     <script src="archivedStructures.js"></script>
     <script src="matrixDemo.js"></script>
-<script data-main="app" src="http://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.2/require.min.js"></script>
+    <script>
+    var socketURI = window.location.href.replace("http://", "ws://");
+    var ws = new WebSocket(socketURI); </script>
+    <script data-main="app" src="http://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.2/require.min.js"></script>
 
 
 </head>

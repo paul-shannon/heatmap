@@ -6,6 +6,12 @@ library(RUnit)
 #--------------------------------------------------------------------------------
 configureWebSocketServer <- function(wsCon)
 {
+   wsCon <- new.env(parent=emptyenv())
+   wsCon$open <- FALSE
+   wsCon$wsID <- NULL
+   wsCon$ws <- NULL
+   wsCon$result <- NULL
+
     wsCon$call = function(req) { # "call" processes http requests
     wsUrl = paste(sep='',
                    '"',
@@ -36,4 +42,14 @@ my.send <- function(wsCon, msg)
     wsCon$ws$send(toJSON(msg, auto_unbox=TRUE))
 
 } # send
+#--------------------------------------------------------------------------------
+init <- function()
+{
+   wsCon <- configureWebSocketServer()
+   port <- 8694
+   browseURL(sprintf("http://localhost:%d", port))
+   wsCon$id <- startDaemonizedServer("0.0.0.0", port, wsCon)
+   return(wsCon)
+
+} # init
 #--------------------------------------------------------------------------------
