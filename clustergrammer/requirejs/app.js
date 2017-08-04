@@ -35,5 +35,5 @@ require(['underscore', 'jquery',  'clustergrammer'], function (_, $, clustergram
          cgm = Clustergrammer(args);
          $("#cgDiv .wait_message").remove()
          console.log('loading clustergrammer')
-      } // make_clust
+	 } // make_clust
     }); // require

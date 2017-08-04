@@ -6,7 +6,7 @@ smallDemo <- function() {
 
    printf("=== smallDemo")
     
-    mtx <- as.matrix(longley)
+    mtx <- as.matrix(longley) #US GNP data
     tbl.rowmd <- data.frame(row.names=row.names(mtx),
                             Decade=c("Forties", "Forties", "Forties", "Fifties", "Fifties", "Fifties", "Fifties", "Fifties", "Fifties", "Fifties", "Fifties", "Fifties", "Fifties", "Sixties",  "Sixties", "Sixties"),
                             stringsAsFactors=FALSE)
@@ -109,7 +109,7 @@ matrixToClustergrammerList <- function(mtx) {
     if(c > 11) {
         c = 11
         } #optimal k-value = 11
-    
+ 
     treeMtx.rows <- cutree(hc.rows, k=1:r)
     treeMtx.cols <- cutree(hc.cols, k=1:c)
 
