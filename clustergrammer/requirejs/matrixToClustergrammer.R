@@ -212,7 +212,15 @@ test_smallMatrixToListWithMetaData <- function() {
                             Test=c("w", "x", "y"),
                             stringsAsFactors=FALSE)
 
+    print(mtx)
+    print(tbl.rowmd)
+    print(tbl.colmd)
+    
+
     list.cg <- matrixToListWithMetaData(mtx, tbl.rowmd, tbl.colmd)
+
+    print(list.cg)
+    print(toJSON(list.cg))
 
     checkTrue(is.list(list.cg))
     
